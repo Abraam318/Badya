@@ -99,63 +99,89 @@
     </div>
 
 
+  <!-- ✅ intl-tel-input CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/css/intlTelInput.css" />
 
-    <!-- Quick Contact Form (SEO-optimized) -->
-    <section aria-label="Request a Callback" style="margin-top:20px; max-width:320px;">
-      <form id="quick-contact-form"
-        action="https://primary-production-0ee20.up.railway.app/webhook/85bd46ba-4de6-4776-9116-2d743b0eca94"
-        method="POST"
-        style="margin:0;"
-      >
-        <div style="margin-bottom:12px;">
-          <label for="quick-firstname" style="display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:#ffffff;">
-            First Name
-          </label>
-          <input id="quick-firstname" name="firstname" type="text" placeholder="Enter your first name" required
-            style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:4px; font-family:'Nunito', sans-serif; font-size:14px; color:#333;" />
-        </div>
-        <div style="margin-bottom:12px;">
-          <label for="quick-phone" style="display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:#ffffff;">
-            Phone Number
-          </label>
-          <input id="quick-phone" name="phone" type="tel" placeholder="+20 123 456 789" required
-            style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:4px; font-family:'Nunito', sans-serif; font-size:14px; color:#333;" />
-        </div>
-        <button type="submit"
-          style="display:inline-block; width:100%; padding:10px 15px; background:#d5203b; color:#fff; border:none; border-radius:4px; font-family:'Nunito', sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s;">
-          Request Callback
-        </button>
-      </form>
-      <p id="quick-contact-message" style="font-size:12px; margin-top:8px; color:#aeaeae; line-height:1.4; display:none;"></p>
-    </section>
-    <script>
-      const quickForm = document.getElementById("quick-contact-form");
-      const quickMessage = document.getElementById("quick-contact-message");
-      quickForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        quickMessage.style.display = "block";
-        quickMessage.style.color = "#aeaeae";
-        quickMessage.textContent = "Sending...";
-        try {
-          const formData = new FormData(quickForm);
-          const response = await fetch(quickForm.action, {
-            method: quickForm.method,
-            body: formData
-          });
-          if (response.ok) {
-            quickMessage.style.color = "lightgreen";
-            quickMessage.textContent = "✅ Thank you! Our team will call you back soon.";
-            quickForm.reset();
-          } else {
-            throw new Error(`Server error: ${response.status}`);
-          }
-        } catch (error) {
-          quickMessage.style.color = "#ff6b6b";
-          quickMessage.textContent = "❌ Something went wrong. Please try again later.";
-          console.error(error);
+
+  <!-- Quick Contact Form -->
+  <section aria-label="Request a Callback" style="margin-top:20px; max-width:320px; margin:auto;">
+    <form id="quick-contact-form"
+      action="https://primary-production-0ee20.up.railway.app/webhook/85bd46ba-4de6-4776-9116-2d743b0eca94"
+      method="POST"
+      style="margin:0;"
+    >
+      <div style="margin-bottom:12px;">
+        <label for="quick-firstname" style="display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:#ffffff;">
+          First Name
+        </label>
+        <input id="quick-firstname" name="firstname" type="text" placeholder="Enter your first name" required
+          style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:4px; font-size:14px; color:#333;" />
+      </div>
+      <div style="margin-bottom:12px;">
+        <label for="quick-phone" style="display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:#ffffff;">
+          Phone Number
+        </label>
+        <input id="quick-phone" name="phone" type="tel" placeholder="123 456 789" required
+          style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:4px; font-size:14px; color:#333;" />
+      </div>
+      <button type="submit"
+        style="display:inline-block; width:100%; padding:10px 15px; background:#d5203b; color:#fff; border:none; border-radius:4px; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s;">
+        Request Callback
+      </button>
+    </form>
+    <p id="quick-contact-message" style="font-size:12px; margin-top:8px; color:#aeaeae; line-height:1.4; display:none;"></p>
+  </section>
+
+  <!-- ✅ intl-tel-input JS -->
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/js/intlTelInput.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/js/utils.js"></script>
+
+  <script>
+    const quickForm = document.getElementById("quick-contact-form");
+    const quickMessage = document.getElementById("quick-contact-message");
+    const phoneInput = document.querySelector("#quick-phone");
+
+    // Initialize intl-tel-input
+    const iti = window.intlTelInput(phoneInput, {
+      initialCountry: "eg",
+      preferredCountries: ["eg", "us", "sa", "ae"],
+      separateDialCode: true,
+      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/js/utils.js"
+    });
+
+    quickForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      quickMessage.style.display = "block";
+      quickMessage.style.color = "#aeaeae";
+      quickMessage.textContent = "Sending...";
+
+      try {
+        const formData = new FormData(quickForm);
+
+        // Replace phone field with full international number
+        formData.set("phone", iti.getNumber());
+
+        const response = await fetch(quickForm.action, {
+          method: quickForm.method,
+          body: formData
+        });
+
+        if (response.ok) {
+          quickMessage.style.color = "lightgreen";
+          quickMessage.textContent = "✅ Thank you! Our team will call you back soon.";
+          quickForm.reset();
+          iti.setCountry("eg"); // reset back to Egypt
+        } else {
+          throw new Error(`Server error: ${response.status}`);
         }
-      });
-    </script>
+      } catch (error) {
+        quickMessage.style.color = "#ff6b6b";
+        quickMessage.textContent = "❌ Something went wrong. Please try again later.";
+        console.error(error);
+      }
+    });
+  </script>
+
   </header>
 
 
@@ -358,7 +384,6 @@
 
     <!-- FOOTER (keeps nav; adds quick-contact lead form so design unchanged but leads captured) -->
     <footer class="footer">
-
 <div style="display:flex; justify-content:center; align-items:center; margin-top:20px; width:100%;">
   <div style="max-width:320px; width:100%; text-align:center;">
     <form id="footer-form"
@@ -378,8 +403,7 @@
         <label for="footer-phone" style="display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:#ffffff; text-align:left;">
           Phone Number
         </label>
-        <input id="footer-phone" name="phone" type="tel" placeholder="+20 123 456 789" required
-          style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:4px; font-family:'Nunito', sans-serif; font-size:14px; color:#333;" />
+        <input id="footer-phone" name="phone" type="tel" placeholder="123 456 789" required />
       </div>
 
       <button type="submit"
@@ -391,17 +415,48 @@
     <!-- Feedback message -->
     <p id="footer-message" style="font-size:12px; margin-top:8px; color:#aeaeae; line-height:1.4; display:none;"></p>
 
-<p style="margin-top:25px; font-size:12px; color:#ffffff;">
-  © 2025 Badya - Palm Hills. All rights reserved. <br>
-</p>
-  <p><a href="terms.html" style="color:#d5203b; margin-top:25px; font-size:12px; text-decoration:underline;">Terms & Conditions</a>
-</p>
+    <p style="margin-top:25px; font-size:12px; color:#ffffff;">
+      © 2025 Badya - Palm Hills. All rights reserved. <br>
+    </p>
+    <p><a href="terms.html" style="color:#d5203b; margin-top:25px; font-size:12px; text-decoration:underline;">Terms & Conditions</a></p>
+  </div>
 </div>
-</div>
+
+<!-- ✅ intl-tel-input CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/css/intlTelInput.css" />
+
+<!-- ✅ intl-tel-input JS -->
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/js/utils.js"></script>
+
+<style>
+  /* Make sure phone input is always 100% */
+  .iti {
+    width: 100%;
+  }
+  .iti input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    color: #333;
+  }
+</style>
 
 <script>
   const form = document.getElementById("footer-form");
   const message = document.getElementById("footer-message");
+  const footerPhoneInput = document.querySelector("#footer-phone");
+
+  // Initialize intl-tel-input
+  const itiFooter = window.intlTelInput(footerPhoneInput, {
+    initialCountry: "eg",
+    preferredCountries: ["eg", "us", "sa", "ae"],
+    separateDialCode: true,
+    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.5.2/build/js/utils.js"
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault(); // stop normal form submission
@@ -412,6 +467,10 @@
 
     try {
       const formData = new FormData(form);
+
+      // Replace phone field with full international number
+      formData.set("phone", itiFooter.getNumber());
+
       const response = await fetch(form.action, {
         method: form.method,
         body: formData
@@ -421,6 +480,7 @@
         message.style.color = "lightgreen";
         message.textContent = "✅ Thank you! We’ll call you back within hours.";
         form.reset();
+        itiFooter.setCountry("eg"); // reset back to Egypt
       } else {
         throw new Error(`Server error: ${response.status}`);
       }
@@ -431,8 +491,6 @@
     }
   });
 </script>
-
-
 
     </footer>
 
